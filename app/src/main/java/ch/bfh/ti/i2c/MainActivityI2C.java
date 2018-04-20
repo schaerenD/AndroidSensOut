@@ -106,6 +106,8 @@ public class MainActivityI2C extends AppCompatActivity {
     float BME280_Pressure_compens     = 0;
 
     double BME280_Humidity_proz;
+    double BME280_Temp_celsius;
+    double BME280_Temp_fahrnheit;
 
     float var1;
     float var2;
@@ -181,6 +183,13 @@ public class MainActivityI2C extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_i2_c);
         getWindow().getDecorView().setBackgroundColor(Color.BLACK);
+        //BME280Meteo bme280 = new BME280Meteo();
+        //bme280.init();
+        //bme280.ReadCompensationData();
+       // bme280.UpdateMeteoData();
+       // bme280.getTemperatur("Celsius");
+      //  bme280.getHumidity();
+      //  bme280.getPressure();
         
         textViewTemperature = (TextView) findViewById(R.id.textViewTemperature);
 
@@ -444,9 +453,9 @@ public class MainActivityI2C extends AppCompatActivity {
                         float var1 = (((float)BME280_Temp_raw) / 16384 - ((float)dig_T1) / 1024) * ((float)dig_T2);
                         float var2 = ((((float)BME280_Temp_raw) / 131072 - ((float)dig_T1) / 8192) * (((float)BME280_Temp_raw)/131072 - ((float)dig_T1)/8192)) * ((float)dig_T3);
                         float t_fine = (long)(var1 + var2);
-                        float cTemp = (var1 + var2) / 5120;
-                        double fTemp = cTemp * 1.8 + 32;
-                        textViewTemperature.setText("celsTemp_Real: " + String.format("%f", cTemp) + "fahrTemp_Real: " + String.format("%f", fTemp));
+                        BME280_Temp_celsius = (var1 + var2) / 5120;
+                        BME280_Temp_fahrnheit = BME280_Temp_celsius * 1.8 + 32;
+                        textViewTemperature.setText("celsTemp_Real: " + String.format("%f", BME280_Temp_celsius) + "fahrTemp_Real: " + String.format("%f", BME280_Temp_fahrnheit));
 
                         // Pressure offset calculations
                         var1 = ((float)t_fine / 2) - 64000;
@@ -465,10 +474,10 @@ public class MainActivityI2C extends AppCompatActivity {
                         textViewTemperature.setText("Luftdruck_hPa: " + String.format("%f", BME280_Pressure_hPa));
 
                         // Humidity offset calculations
-                        double var_H = (((float)t_fine) - 76800);
-                        var_H = (BME280_Humidity_raw - (dig_H4 * 64 + dig_H5 / 16384 * var_H)) * (dig_H2 / 65536 * (1.0 + dig_H6 / 67108864 * var_H * (1.0 + dig_H3 / 67108864 * var_H)));
-                        BME280_Humidity_proz= (double) (var_H * (1.0 -  dig_H1 * var_H / 524288.0));
-                        if(BME280_Humidity_proz > 100)
+                        double var_H = ((t_fine) - 76800.0);
+                        var_H = (BME280_Humidity_raw - (dig_H4 * 64.0 + dig_H5 / 16384.0 * var_H)) * (dig_H2 / 65536.0 * (1.0 + dig_H6 / 67108864.0 * var_H * (1.0 + dig_H3 / 67108864.0 * var_H)));
+                        BME280_Humidity_proz =  (var_H * (1.0 -  dig_H1 * var_H / 524288.0));
+                        if(BME280_Humidity_proz > 100.0)
                         {
                             BME280_Humidity_proz = 100;
                         }else
@@ -476,8 +485,7 @@ public class MainActivityI2C extends AppCompatActivity {
                         {
                             BME280_Humidity_proz = 0;
                         }
-                        textViewTemperature.setText("Luftfeuchte_%: " + String.format("%f", BME280_Humidity_proz = 0;
-));
+                        textViewTemperature.setText("Luftfeuchte:: " + String.format("%f", BME280_Humidity_proz));
                     }
                 });
             }
